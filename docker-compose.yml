@@ -1,0 +1,26 @@
+services:     
+  lighthouse-runner:
+    build:
+      context: ./lighthouse-app
+      dockerfile: Dockerfile
+    ports:
+      - "3090:3090"
+    volumes: 
+      - ./lighthouse-app:/app
+      - /app/node_modules
+      - /app/dist
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+
+  lighthouse-ui:
+    build:
+      context: ./lighthouse-ui
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - lighthouse-runner
+    restart: unless-stopped
+    
+    
