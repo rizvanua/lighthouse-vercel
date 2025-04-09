@@ -18,6 +18,7 @@ A Docker-based web application that provides a user-friendly interface for runni
 - 🔄 Containerized setup for easy deployment
 - 🎨 Modern Material-UI design
 - 🔍 Support for any public website
+- ⚡ Parallel analysis of up to 2 URLs simultaneously
 
 ## Prerequisites
 
@@ -50,6 +51,7 @@ http://localhost:80
   - Node.js service running Lighthouse audits
   - Uses Chromium for headless browser testing
   - RESTful API endpoints for analysis
+  - Supports parallel analysis of up to 2 URLs
 
 - **React UI** (Port 80)
   - Modern web interface
@@ -60,8 +62,22 @@ http://localhost:80
 ### API Endpoints
 
 - `POST /analyze`
-  - Request body: `{ "url": "https://example.com" }`
-  - Returns: Lighthouse analysis results
+  - Request body: `{ "urls": ["https://example.com", "https://example.org"] }`
+  - Returns: Lighthouse analysis results for up to 2 URLs
+  - Example response:
+    ```json
+    {
+      "results": [
+        {
+          "url": "https://example.com",
+          "success": true,
+          "lcp": 1234,
+          "ttfb": 567,
+          "reportPath": "/app/reports/example_com_report.html"
+        }
+      ]
+    }
+    ```
 
 - `GET /health`
   - Health check endpoint
@@ -74,12 +90,17 @@ http://localhost:80
 ```
 lighthouse-runner/
 ├── lighthouse-app/          # Lighthouse service
-│   ├── scripts/            # TypeScript source files
+│   ├── src/                # TypeScript source files
+│   ├── dist/               # Compiled JavaScript files
+│   ├── reports/            # Generated Lighthouse reports
 │   ├── package.json        # Node.js dependencies
+│   ├── tsconfig.json       # TypeScript configuration
 │   └── Dockerfile         # Lighthouse service container
 ├── lighthouse-ui/          # React UI service
 │   ├── src/               # React source files
+│   ├── public/            # Static assets
 │   ├── package.json       # React dependencies
+│   ├── nginx.conf         # Nginx configuration
 │   └── Dockerfile        # UI service container
 └── docker-compose.yml     # Docker services configuration
 ```
@@ -108,12 +129,28 @@ docker-compose up --build
 ## Usage
 
 1. Open the web interface at `http://localhost:80`
-2. Enter the URL you want to analyze
-3. Click "Analyze" to start the Lighthouse audit
+2. Enter up to 2 URLs you want to analyze
+3. Click "Analyze" to start the Lighthouse audits
 4. View the results including:
    - Largest Contentful Paint (LCP)
    - Time to First Byte (TTFB)
    - Download the full Lighthouse report
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Chrome/Chromium not found**
+   - Ensure the Docker container has the correct Chrome dependencies installed
+   - Check the `CHROME_PATH` environment variable
+
+2. **TypeScript compilation errors**
+   - Verify that the source files are in the correct location (`src/` directory)
+   - Check the `tsconfig.json` configuration
+
+3. **Docker volume issues**
+   - The `dist/` and `node_modules/` directories are mounted as anonymous volumes
+   - Only the `reports/` directory is shared with the host
 
 ## Contributing
 
