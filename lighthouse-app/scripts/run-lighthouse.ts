@@ -9,7 +9,16 @@ const SITE_ID = 'default-site';
 const TARGET_URL = 'https://example.com'; // Default URL, can be changed via API
 const DASHBOARD_API = 'http://localhost:3090/metrics'; // Local endpoint for now
 
-async function runLighthouse(url: string) {
+interface AnalysisResult {
+  success: boolean;
+  url: string;
+  lcp?: number;
+  ttfb?: number;
+  error?: string;
+  report?: any;
+}
+
+async function runLighthouse(url: string): Promise<AnalysisResult> {
   const chrome = await launch({
     chromeFlags: [
       '--headless',
@@ -43,24 +52,46 @@ async function runLighthouse(url: string) {
     console.log('LCP:', lcp);
     console.log('TTFB:', ttfb);
 
-    // Save the report to disk
-    fs.writeFileSync('lighthouse-report.json', reportJson);
+    // Save the report to disk with URL in filename
+    const safeUrl = url.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    fs.writeFileSync(`lighthouse-report-${safeUrl}.json`, reportJson);
 
     return {
       success: true,
+      url,
       lcp,
       ttfb,
       report: JSON.parse(reportJson)
     };
   } catch (err) {
-    console.error('❌ Lighthouse failed:', err);
+    console.error(`❌ Lighthouse failed for ${url}:`, err);
     return {
       success: false,
+      url,
       error: err instanceof Error ? err.message : 'Unknown error'
     };
   } finally {
     await chrome.kill();
   }
+}
+
+async function analyzeUrls(urls: string[]): Promise<AnalysisResult[]> {
+  // Run analyses in parallel with a maximum of 2 concurrent analyses
+  const results: AnalysisResult[] = [];
+  const chunks = [];
+  
+  // Split URLs into chunks of 2
+  for (let i = 0; i < urls.length; i += 2) {
+    chunks.push(urls.slice(i, i + 2));
+  }
+
+  // Process each chunk in parallel
+  for (const chunk of chunks) {
+    const chunkResults = await Promise.all(chunk.map(url => runLighthouse(url)));
+    results.push(...chunkResults);
+  }
+
+  return results;
 }
 
 // Create HTTP server
@@ -84,16 +115,19 @@ const server = http.createServer(async (req, res) => {
 
     req.on('end', async () => {
       try {
-        const { url } = JSON.parse(body);
-        if (!url) {
+        const { urls } = JSON.parse(body);
+        if (!urls || !Array.isArray(urls) || urls.length === 0) {
           res.writeHead(400);
-          res.end(JSON.stringify({ error: 'URL is required' }));
+          res.end(JSON.stringify({ error: 'URLs array is required' }));
           return;
         }
 
-        const result = await runLighthouse(url);
+        // Limit to maximum 2 URLs
+        const urlsToAnalyze = urls.slice(0, 2);
+        const results = await analyzeUrls(urlsToAnalyze);
+        
         res.writeHead(200);
-        res.end(JSON.stringify(result));
+        res.end(JSON.stringify({ results }));
       } catch (error) {
         res.writeHead(400);
         res.end(JSON.stringify({ error: 'Invalid request body' }));
@@ -111,5 +145,5 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, () => {
   console.log(`🚀 Lighthouse server running on port ${PORT}`);
   console.log(`📊 Health check available at http://localhost:${PORT}/health`);
-  console.log(`🔍 Send POST requests to http://localhost:${PORT}/analyze with a JSON body containing a "url" field`);
+  console.log(`🔍 Send POST requests to http://localhost:${PORT}/analyze with a JSON body containing a "urls" array`);
 });
