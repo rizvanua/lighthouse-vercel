@@ -16,7 +16,6 @@ A Docker-based web application that provides a user-friendly interface for runni
 - 📊 Real-time performance metrics (LCP, TTFB)
 - 📥 Downloadable detailed Lighthouse reports
 - 🔄 Containerized setup for easy deployment
-- 🎨 Modern Material-UI design
 - 🔍 Support for any public website
 - ⚡ Parallel analysis of up to 2 URLs simultaneously
 
