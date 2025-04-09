@@ -1,7 +1,8 @@
 # Lighthouse Performance Analyzer
 
 
-<img width="1680" alt="Screenshot 2025-04-02 at 16 41 14" src="https://github.com/user-attachments/assets/5f669691-3ca2-4e34-932e-fcfbff48359e" />
+<img width="596" alt="Screenshot 2025-04-09 at 18 47 14" src="https://github.com/user-attachments/assets/ac5a58a9-6f23-473a-aee5-6ccb4f9eb4f1" />
+
 
 
 A Docker-based web application that provides a user-friendly interface for running Google Lighthouse performance audits on any website. The project consists of two main services:
