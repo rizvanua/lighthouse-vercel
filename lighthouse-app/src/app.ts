@@ -53,7 +53,7 @@ async function analyzeUrls(urls: string[]): Promise<AnalysisResult[]> {
     const chunkResults = await Promise.all(chunk.map(url => runWorker(url)));
     results.push(...chunkResults);
   }
-  console.log('!!!RESULTS', results)
+  
   return results;
 }
 
