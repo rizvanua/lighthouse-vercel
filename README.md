@@ -1,5 +1,8 @@
 # Lighthouse Performance Analyzer
 
+<img width="555" alt="Screenshot 2025-04-09 at 11 18 25" src="https://github.com/user-attachments/assets/c8980bdf-edc8-43b0-a0e3-77d14069af4f" />
+
+
 A Docker-based web application that provides a user-friendly interface for running Google Lighthouse performance audits on any website. The project consists of two main services:
 
 1. **Lighthouse Runner Service**: A Node.js service that runs Lighthouse audits using Chromium
