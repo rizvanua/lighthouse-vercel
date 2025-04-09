@@ -26,7 +26,7 @@ interface LighthouseResult {
 }
 
 function App() {
-  const [urls, setUrls] = useState<string[]>([''])
+  const [urls, setUrls] = useState<string[]>(['https://www.camotrading.com/','https://www.camotrading.com/?no-cache-proxy=true'])
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState<LighthouseResult[] | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -71,8 +71,8 @@ function App() {
         },
         body: JSON.stringify({ urls: urlsToAnalyze }),
       })
-
       const data = await response.json()
+      console.log('[DATA]', data)
       setResults(data.results)
     } catch (err) {
       setError('Failed to analyze URLs. Please try again.')

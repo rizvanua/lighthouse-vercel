@@ -1,8 +1,7 @@
-import fs from 'fs';
-import lighthouse from 'lighthouse';
-import { launch } from 'chrome-launcher';
-import fetch from 'node-fetch';
 import http from 'http';
+import { fork } from 'child_process';
+
+
 
 const PORT = 3090;
 const SITE_ID = 'default-site';
@@ -18,62 +17,26 @@ interface AnalysisResult {
   report?: any;
 }
 
-async function runLighthouse(url: string): Promise<AnalysisResult> {
-  const chrome = await launch({
-    chromeFlags: [
-      '--headless',
-      '--no-sandbox',
-      '--disable-gpu',
-      '--disable-dev-shm-usage',
-      '--disable-setuid-sandbox',
-      '--no-first-run',
-      '--no-zygote',
-      '--single-process'
-    ],
-    chromePath: process.env.CHROME_PATH || undefined
-  });
-
-  try {
-    const result = await lighthouse(url, {
-      port: chrome.port,
-      output: 'json',
-      logLevel: 'info',
+// Wrap child process in a promise
+function runWorker(input:string): Promise<AnalysisResult> {
+    return new Promise((resolve, reject) => {
+      const child = fork('./dist/run-lighthouse.js', [input]);
+  
+      child.on('message', (msg:AnalysisResult) => {
+        resolve(msg);
+      });
+  
+      child.on('error', (err) => {
+        reject(err);
+      });
+  
+      child.on('exit', (code) => {
+        if (code !== 0) {
+          reject(new Error(`Child process exited with code ${code}`));
+        }
+      });
     });
-    if (!result || !result.lhr) {
-      throw new Error('Lighthouse failed to produce a result');
-    }
-    const reportJson = result.report as string;
-    const report = result.lhr;
-
-    const lcp = report.audits['largest-contentful-paint'].numericValue;
-    const ttfb = report.audits['server-response-time'].numericValue;
-
-    console.log(`✅ Lighthouse results for ${url}`);
-    console.log('LCP:', lcp);
-    console.log('TTFB:', ttfb);
-
-    // Save the report to disk with URL in filename
-    const safeUrl = url.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-    fs.writeFileSync(`lighthouse-report-${safeUrl}.json`, reportJson);
-
-    return {
-      success: true,
-      url,
-      lcp,
-      ttfb,
-      report: JSON.parse(reportJson)
-    };
-  } catch (err) {
-    console.error(`❌ Lighthouse failed for ${url}:`, err);
-    return {
-      success: false,
-      url,
-      error: err instanceof Error ? err.message : 'Unknown error'
-    };
-  } finally {
-    await chrome.kill();
   }
-}
 
 async function analyzeUrls(urls: string[]): Promise<AnalysisResult[]> {
   // Run analyses in parallel with a maximum of 2 concurrent analyses
@@ -87,10 +50,10 @@ async function analyzeUrls(urls: string[]): Promise<AnalysisResult[]> {
 
   // Process each chunk in parallel
   for (const chunk of chunks) {
-    const chunkResults = await Promise.all(chunk.map(url => runLighthouse(url)));
+    const chunkResults = await Promise.all(chunk.map(url => runWorker(url)));
     results.push(...chunkResults);
   }
-
+  console.log('!!!RESULTS', results)
   return results;
 }
 

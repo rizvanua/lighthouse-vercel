@@ -31,5 +31,3 @@ EXPOSE 3090
 
 # Start the application
 CMD ["npm", "run", "start"]
-
-# Default command is in docker-compose.yml
