@@ -41,6 +41,10 @@ Content-Type: application/json
 }
 ```
 
+## Current test API route
+
+https://lighthouse-vercel-three.vercel.app/api/analyze
+
 Analyzes a website using Lighthouse and returns performance metrics.
 
 **Response:**
@@ -71,6 +75,7 @@ This project is configured for deployment on Vercel. To deploy:
 vercel --prod
 ```
 
+
 ## Environment Variables
 
 No environment variables are required for basic functionality.
@@ -84,6 +89,6 @@ No environment variables are required for basic functionality.
 
 ## Limitations
 
-- Maximum execution time: 60 seconds (Vercel serverless function limit)
-- Memory: 1024MB (Vercel serverless function limit)
+- Maximum execution time: 180 seconds (Can be changed in vercel.json)
+- Memory: 30094MB (Can be changed in vercel.json)
 - Node.js version: 22.x.x

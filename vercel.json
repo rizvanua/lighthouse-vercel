@@ -4,8 +4,8 @@
     "outputDirectory": "api/dist",
     "functions": {
       "api/**/*.ts": {
-        "memory": 1024,
-        "maxDuration": 60
+        "memory": 3009,
+        "maxDuration": 180
       }
     },
     "routes": [      
