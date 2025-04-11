@@ -20,6 +20,9 @@ lighthouse-vercel/
 │       └── vercel.d.ts       # Vercel type definitions
 └── vercel.json               # Vercel deployment configuration
 ```
+## Important Notes
+- Make sure `chromium` version is aligned with `puppeteer-core` version (check here https://pptr.dev/supported-browsers)
+- `Fluid compute` should be enabled in Vercel project
 
 ## Features
 
