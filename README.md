@@ -23,6 +23,7 @@ lighthouse-vercel/
 ## Important Notes
 - Make sure `chromium` version is aligned with `puppeteer-core` version (check here https://pptr.dev/supported-browsers)
 - `Fluid compute` should be enabled in Vercel project
+<img width="1516" alt="Screenshot 2025-04-11 at 22 23 50" src="https://github.com/user-attachments/assets/b8745509-d59c-46bc-97ea-51272fd05669" />  
 
 ## Features
 
