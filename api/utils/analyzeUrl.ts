@@ -1,7 +1,7 @@
 import lighthouse from "lighthouse";
-import chromium from "@sparticuz/chromium";
-import { launch, Browser } from "puppeteer-core";
-
+import { Browser } from "puppeteer-core";
+import { launchBrowser } from "./browser.js";
+import { getLighthouseConfig } from "./lighthouseConfig.js";
 export interface AnalysisResult {
   success: boolean;
   url: string;
@@ -9,44 +9,6 @@ export interface AnalysisResult {
   ttfb?: number;
   error?: string;
   report?: any;
-}
-
-async function launchBrowser(): Promise<Browser> {
-  return await launch({
-    args: chromium.args,
-    executablePath: await chromium.executablePath(),
-    headless: chromium.headless as boolean | "shell",
-  });
-}
-
-function getLighthouseConfig(port: number) {
-  return {
-    port,
-    output: "json",
-    logLevel: "info",
-    config: {
-      extends: "lighthouse:default",
-      settings: {
-        onlyAudits: [
-          "first-contentful-paint",
-          "interactive",
-          "speed-index",
-          "largest-contentful-paint",
-          "cumulative-layout-shift",
-        ],
-        ignoreDefaultArgs: ["--disable-extensions"],
-        formFactor: "desktop",
-        screenEmulation: {
-          mobile: false,
-          width: 1350,
-          height: 940,
-          deviceScaleFactor: 1,
-          disabled: false,
-        },
-        throttlingMethod: "devtools",
-      },
-    },
-  };
 }
 
 export async function analyzeUrl(url: string): Promise<AnalysisResult> {
