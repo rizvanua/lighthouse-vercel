@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "buildCommand": "cd api && npm install && npm run build",
+  "outputDirectory": "api/dist",
+  "builds": [
+    {
+      "src": "api/**/*.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/health",
+      "dest": "/api/health.ts"
+    },
+    {
+      "src": "/api/analyze",
+      "dest": "/api/analyze.ts"
+    }
+  ]
+} 
