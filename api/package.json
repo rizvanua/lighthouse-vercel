@@ -9,10 +9,12 @@
     "@sparticuz/chromium": "^133.0.0",
     "puppeteer-core": "^24.2.0",
     "lighthouse": "^9.6.8",
+    "node-fetch": "^3.3.2",
     "@vercel/node": "^3.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.4.0",
+    "@types/node-fetch": "^2.6.11",
     "typescript": "^5.3.3"
   },
   "engines": {
